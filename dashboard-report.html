@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Svaro PayTrace — Vietnam Market Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@700,600,500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:        #6366F1;
+      --primary-hover:  #4F46E5;
+      --secondary:      #20970B;
+      --neutral:        #9C9C9C;
+      --bg:             #FAFAFA;
+      --surface:        #FFFFFF;
+      --text-primary:   #0A0A0A;
+      --text-secondary: #6B6B6B;
+      --border:         #E8E8EC;
+      --success:        #10B981;
+      --warning:        #F59E0B;
+      --error:          #EF4444;
+      --font-display:   'General Sans', system-ui, sans-serif;
+      --font-body:      'DM Sans', system-ui, sans-serif;
+    }
+
+    html { background: var(--bg); color: var(--text-primary); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 56px; background: rgba(250,250,250,0.85);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+    }
+    .nav-logo {
+      font-family: var(--font-display); font-size: 18px; font-weight: 700;
+      letter-spacing: -0.03em; color: var(--text-primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-logo .dot { width: 8px; height: 8px; border-radius: 9999px; background: var(--primary); }
+    .nav-meta { font-size: 13px; color: var(--text-secondary); }
+    .nav-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #EEF2FF; color: var(--primary); border-radius: 4px;
+      padding: 2px 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 48px 0 96px; }
+
+    /* ── HERO ── */
+    .hero { margin-bottom: 48px; }
+    .hero .overline { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; }
+    .hero h1 { font-family: var(--font-display); font-size: 40px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-primary); margin-bottom: 12px; }
+    .hero h1 span { color: var(--primary); }
+    .hero p { font-size: 15px; color: var(--text-secondary); max-width: 640px; }
+    .hero-meta { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+    .hero-meta .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 9999px;
+      padding: 4px 12px; font-size: 12px; color: var(--text-secondary);
+    }
+    .hero-meta .chip strong { color: var(--text-primary); font-weight: 600; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--neutral); margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    section { margin-bottom: 48px; }
+
+    /* ── STAT CARDS (top row) ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px 20px; transition: box-shadow 200ms, transform 200ms;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+    .stat-card .value { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -0.03em; color: var(--text-primary); line-height: 1; }
+    .stat-card .value.primary { color: var(--primary); }
+    .stat-card .value.success { color: var(--success); }
+    .stat-card .value.warning { color: var(--warning); }
+    .stat-card .value.error   { color: var(--error); }
+    .stat-card .sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+    .stat-card .source { font-size: 11px; color: var(--neutral); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+
+    /* ── DSO COMPARISON ── */
+    .dso-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 640px) { .dso-grid { grid-template-columns: 1fr; } }
+
+    .dso-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px;
+    }
+    .dso-card .industry { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+    .dso-bar-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .dso-bar-bg { flex: 1; height: 10px; background: var(--bg); border-radius: 9999px; overflow: hidden; }
+    .dso-bar-fill { height: 100%; border-radius: 9999px; }
+    .dso-days { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.03em; }
+    .dso-label { font-size: 12px; color: var(--text-secondary); }
+
+    /* ── EXCEPTIONS ── */
+    .exception-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .exception-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background 150ms;
+    }
+    .exception-row:last-child { border-bottom: none; }
+    .exception-row:hover { background: var(--bg); }
+    .exception-row .left { display: flex; align-items: center; gap: 12px; }
+    .exception-row .dot { width: 8px; height: 8px; border-radius: 9999px; flex-shrink: 0; }
+    .exception-row .name { font-size: 14px; font-weight: 500; }
+    .exception-row .desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .exception-row .right { display: flex; align-items: center; gap: 12px; }
+    .exception-row .count {
+      font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+      min-width: 32px; text-align: right;
+    }
+    .pct-bar-bg { width: 80px; height: 6px; background: var(--bg); border-radius: 9999px; overflow: hidden; }
+    .pct-bar-fill { height: 100%; border-radius: 9999px; }
+
+    /* ── VALUE TABLE ── */
+    .value-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .value-table th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--neutral); padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .value-table td { font-size: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+    .value-table tr:last-child td { border-bottom: none; }
+    .value-table tr:hover td { background: #F5F5FF; }
+    .value-table td.num { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+    .value-table td.highlight { color: var(--primary); font-weight: 600; }
+    .value-table td.success-text { color: var(--success); font-weight: 600; }
+
+    /* ── KPI TABLE ── */
+    .kpi-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .kpi-table th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--neutral); padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .kpi-table td { font-size: 13px; padding: 14px 20px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .kpi-table tr:last-child td { border-bottom: none; }
+    .kpi-table tr:hover td { background: #F5F5FF; }
+    .kpi-table .kpi-name { font-weight: 500; font-size: 14px; }
+    .kpi-table .kpi-baseline { color: var(--text-secondary); }
+    .kpi-table .kpi-target { color: var(--primary); font-weight: 600; }
+    .kpi-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 9999px;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+    }
+    .kpi-badge.measure { background: #F0F9FF; color: #0284C7; }
+    .kpi-badge.target  { background: #EEF2FF; color: var(--primary); }
+
+    /* ── PRICING ── */
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .pricing-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px 20px; transition: box-shadow 200ms, transform 200ms;
+    }
+    .pricing-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    .pricing-card.featured { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99,102,241,0.12); }
+    .pricing-card .tier { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; }
+    .pricing-card .price { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -0.03em; color: var(--text-primary); margin-bottom: 4px; }
+    .pricing-card .price span { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+    .pricing-card .desc { font-size: 12px; color: var(--text-secondary); }
+
+    /* ── ARR SCENARIO ── */
+    .arr-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .arr-card {
+      flex: 1; min-width: 200px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px;
+    }
+    .arr-card .scenario { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+    .arr-card .arr-val { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: var(--primary); }
+    .arr-card .arr-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    /* ── COMPETITIVE ── */
+    .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .comp-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 16px 20px;
+    }
+    .comp-card .comp-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .comp-card .comp-focus { font-size: 12px; color: var(--text-secondary); }
+    .comp-card .comp-tag {
+      display: inline-block; margin-top: 8px; padding: 2px 8px; border-radius: 4px;
+      font-size: 11px; font-weight: 600;
+    }
+    .comp-card .comp-tag.overlap { background: #FEF2F2; color: var(--error); }
+    .comp-card .comp-tag.adjacent { background: #FFFBEB; color: #92400E; }
+    .comp-card .comp-tag.gap { background: #ECFDF5; color: #065F46; }
+
+    /* ── FOOTNOTE ── */
+    .footnote { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--neutral); line-height: 1.7; }
+    .footnote strong { color: var(--text-secondary); }
+
+    /* ── SEGMENT TABLE ── */
+    .segment-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .segment-table th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--neutral); padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .segment-table td { font-size: 13px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+    .segment-table tr:last-child td { border-bottom: none; }
+    .segment-table tr:hover td { background: #F5F5FF; }
+    .priority-badge {
+      display: inline-flex; align-items: center; padding: 2px 8px;
+      border-radius: 9999px; font-size: 11px; font-weight: 600;
+    }
+    .priority-badge.high   { background: #EEF2FF; color: var(--primary); }
+    .priority-badge.medium { background: #FFFBEB; color: #92400E; }
+    .priority-badge.low    { background: #F5F5F5; color: var(--neutral); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="dot"></div>
+    Svaro PayTrace
+  </div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <span class="nav-meta">Vietnam Market Report</span>
+    <span class="nav-badge">2025 – 2026 Data</span>
+  </div>
+</nav>
+
+<main>
+  <div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="overline">Market Intelligence Dashboard</div>
+      <h1>B2B Accounts Receivable<br /><span>in Vietnam</span></h1>
+      <p>Evidence-based statistics underpinning the PayTrace opportunity — construction supply chain, working-capital fragmentation, and the order-to-payment gap.</p>
+      <div class="hero-meta">
+        <div class="chip"><strong>Sources:</strong> Atradius 2025–2026, FiinGroup 2025, IFC Vietnam SCF</div>
+        <div class="chip"><strong>Vertical focus:</strong> Construction &amp; material distribution</div>
+        <div class="chip"><strong>Research date:</strong> October 2026</div>
+      </div>
+    </div>
+
+    <!-- SECTION 1 — MARKET CONTEXT -->
+    <section>
+      <div class="section-label">01 — Vietnam B2B Credit Market</div>
+      <div class="stat-grid">
+
+        <div class="stat-card">
+          <div class="label">B2B sales on credit (2025)</div>
+          <div class="value primary">65%</div>
+          <div class="sub">of B2B revenue sold on trade credit</div>
+          <div class="source">Atradius Payment Practices Barometer Vietnam 2025</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">B2B invoices overdue (2025)</div>
+          <div class="value error">39%</div>
+          <div class="sub">of all B2B invoices past due date</div>
+          <div class="source">Atradius 2025</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">Average payment terms</div>
+          <div class="value warning">45 days</div>
+          <div class="sub">median agreed payment period</div>
+          <div class="source">Atradius 2025</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">Bad debt rate (2025)</div>
+          <div class="value error">3%</div>
+          <div class="sub">of total B2B credit sales written off</div>
+          <div class="source">Atradius 2025</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">B2B sales on credit (2026)</div>
+          <div class="value warning">~45%</div>
+          <div class="sub">Declining share, but payment terms remain long vs. Asia</div>
+          <div class="source">Atradius 2026 survey</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">IFC SCF target — Vietnam</div>
+          <div class="value success">$35B</div>
+          <div class="sub">working capital unlocked for 500K+ SMEs (Phase 2 programme)</div>
+          <div class="source">IFC Supply Chain Finance Programme</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- SECTION 2 — DSO BY VERTICAL -->
+    <section>
+      <div class="section-label">02 — Days Sales Outstanding by Industry (Median, 2025)</div>
+      <div class="dso-grid">
+
+        <div class="dso-card">
+          <div class="industry">Construction &amp; Material Supply</div>
+          <div class="dso-bar-wrap">
+            <div class="dso-bar-bg">
+              <div class="dso-bar-fill" style="width:100%; background:var(--error);"></div>
+            </div>
+          </div>
+          <div class="dso-days" style="color:var(--error);">92 days</div>
+          <div class="dso-label" style="margin-top:4px;">Receivables locked the longest — primary PayTrace vertical</div>
+          <div style="font-size:11px; color:var(--neutral); margin-top:8px; border-top:1px solid var(--border); padding-top:8px;">Source: FiinGroup 2025 sector data</div>
+        </div>
+
+        <div class="dso-card">
+          <div class="industry">Wholesale &amp; Retail Distribution</div>
+          <div class="dso-bar-wrap">
+            <div class="dso-bar-bg">
+              <div class="dso-bar-fill" style="width:51%; background:var(--warning);"></div>
+            </div>
+          </div>
+          <div class="dso-days" style="color:var(--warning);">47 days</div>
+          <div class="dso-label" style="margin-top:4px;">Faster turnover — secondary target for PayTrace distribution module</div>
+          <div style="font-size:11px; color:var(--neutral); margin-top:8px; border-top:1px solid var(--border); padding-top:8px;">Source: FiinGroup 2025 sector data</div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:16px; padding:16px 20px; background:var(--surface); border:1px solid var(--border); border-radius:8px;">
+        <div style="font-size:13px; color:var(--text-secondary);">
+          <strong style="color:var(--text-primary);">Why construction DSO matters:</strong>
+          26.3% of surveyed construction firms report difficulty due to unresolved construction debt not settled on time; 21.8% cite capital shortage. The primary cause is dispute evidence fragmentation — not purely liquidity.
+          <em style="color:var(--neutral);">(General Statistics Office of Vietnam; FiinGroup 2025)</em>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3 — WORKING CAPITAL VALUE MODEL -->
+    <section>
+      <div class="section-label">03 — Working Capital Released by DSO Reduction</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">
+        Illustrative model only. Formula: Annual Revenue × DSO Days Reduced ÷ 365. Not a forecast.
+      </p>
+      <table class="value-table">
+        <thead>
+          <tr>
+            <th>Annual Revenue (VND)</th>
+            <th>DSO Reduction</th>
+            <th>Working Capital Released</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">50 billion</td>
+            <td>3 days</td>
+            <td class="num highlight">~411 million VND</td>
+            <td style="color:var(--text-secondary);">Small distributor pilot scenario</td>
+          </tr>
+          <tr>
+            <td class="num">100 billion</td>
+            <td>5 days</td>
+            <td class="num highlight">~1.37 billion VND</td>
+            <td style="color:var(--text-secondary);">Mid-size B2B supplier</td>
+          </tr>
+          <tr>
+            <td class="num">100 billion</td>
+            <td>10 days</td>
+            <td class="num success-text">~2.74 billion VND</td>
+            <td style="color:var(--text-secondary);">Optimistic scenario, full evidence automation</td>
+          </tr>
+          <tr>
+            <td class="num">200 billion</td>
+            <td>5 days</td>
+            <td class="num success-text">~2.74 billion VND</td>
+            <td style="color:var(--text-secondary);">Large construction material distributor</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px; font-size:12px; color:var(--neutral);">
+        PayTrace does not directly cause DSO reduction. Value comes from reducing the <em>evidence-assembly delay</em> in disputed and exception cases, enabling faster collection and financing readiness.
+      </div>
+    </section>
+
+    <!-- SECTION 4 — TARGET SEGMENTS -->
+    <section>
+      <div class="section-label">04 — Target Segments</div>
+      <table class="segment-table">
+        <thead>
+          <tr>
+            <th>Segment</th>
+            <th>Why it fits</th>
+            <th>Priority</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:500;">Construction material distributors (VLXD)</td>
+            <td>Large orders, sold on credit, multi-delivery PO cycles, complex PO→delivery→invoice reconciliation</td>
+            <td><span class="priority-badge high">Very High</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;">Sub-contractors (nhà thầu phụ)</td>
+            <td>Milestone billing, acceptance docs (nghiệm thu), retention clauses, slow settlement</td>
+            <td><span class="priority-badge high">Very High</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;">Industrial distributors</td>
+            <td>Multiple SKUs, POs, delivery notes, partial payments</td>
+            <td><span class="priority-badge high">High</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;">Export / manufacturing suppliers</td>
+            <td>SCF and receivables financing alignment; 30–60 day post-delivery wait (IFC data)</td>
+            <td><span class="priority-badge high">High</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;">Retail / microbusiness</td>
+            <td>Simpler workflow; high software competition (MISA, Bizzi)</td>
+            <td><span class="priority-badge low">Low</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px; padding:14px 20px; background:#EEF2FF; border-radius:8px; font-size:13px; color:var(--primary);">
+        <strong>Ideal Customer Profile:</strong> Distributor or contractor with ₫50–500B+ annual revenue, 2–10 AR/finance staff, hundreds to thousands of B2B invoices/month, using MISA / FAST / BRAVO / Excel.
+      </div>
+    </section>
+
+    <!-- SECTION 5 — EXCEPTION STATUS BREAKDOWN -->
+    <section>
+      <div class="section-label">05 — AR Exception Status Types (Reconciliation Engine)</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">
+        Status categories that PayTrace's evidence reconciliation engine surfaces. Distribution below is illustrative for a typical 100-invoice demo dataset.
+      </p>
+      <div class="exception-list">
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--success);"></div>
+            <div>
+              <div class="name">Fully Evidenced</div>
+              <div class="desc">Contract → PO → Delivery → Acceptance → Invoice → Payment — all matched</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--success);">58</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:58%; background:var(--success);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--warning);"></div>
+            <div>
+              <div class="name">Partially Paid</div>
+              <div class="desc">Payment received but does not cover full invoice amount</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--warning);">14</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:14%; background:var(--warning);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--error);"></div>
+            <div>
+              <div class="name">Delivery Evidence Missing</div>
+              <div class="desc">No phiếu giao hàng / POD linked to invoice</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--error);">9</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:9%; background:var(--error);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--error);"></div>
+            <div>
+              <div class="name">Acceptance Document Missing</div>
+              <div class="desc">No biên bản nghiệm thu for construction milestones</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--error);">7</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:7%; background:var(--error);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--error);"></div>
+            <div>
+              <div class="name">Amount Mismatch</div>
+              <div class="desc">Invoice amount ≠ PO amount (VAT, discount, partial shipment)</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--error);">5</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:5%; background:var(--error);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--primary);"></div>
+            <div>
+              <div class="name">Payment Received, Not Allocated</div>
+              <div class="desc">Bank transaction matched to customer but no invoice link</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--primary);">4</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:4%; background:var(--primary);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:#0EA5E9;"></div>
+            <div>
+              <div class="name">Invoice Overdue (No Exception)</div>
+              <div class="desc">Fully evidenced but past due date — collection follow-up needed</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:#0EA5E9;">2</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:2%; background:#0EA5E9;"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--neutral);"></div>
+            <div>
+              <div class="name">Potential Duplicate</div>
+              <div class="desc">Two invoices with same amount, same customer, within 3 days</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--neutral);">1</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:1%; background:var(--neutral);"></div></div>
+          </div>
+        </div>
+
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:var(--neutral);">
+        Counts are illustrative for a 100-invoice demo dataset. Auto-match target: &gt;70% clean cases with &lt;2–3% false-match rate.
+      </div>
+    </section>
+
+    <!-- SECTION 6 — PILOT KPIs -->
+    <section>
+      <div class="section-label">06 — Pilot KPI Targets</div>
+      <table class="kpi-table">
+        <thead>
+          <tr>
+            <th>KPI</th>
+            <th>Baseline Measurement</th>
+            <th>Pilot Target</th>
+            <th>Type</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="kpi-name">Time to reconstruct AR case</div><div style="font-size:12px;color:var(--text-secondary);">minutes per disputed case</div></td>
+            <td class="kpi-baseline">Measured at pilot start</td>
+            <td class="kpi-target">−50%</td>
+            <td><span class="kpi-badge target">Target</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Auto-match rate</div><div style="font-size:12px;color:var(--text-secondary);">% clean cases matched without human review</div></td>
+            <td class="kpi-baseline">0% (no system)</td>
+            <td class="kpi-target">&gt;70%</td>
+            <td><span class="kpi-badge target">Target</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">False match rate</div><div style="font-size:12px;color:var(--text-secondary);">% of AI matches that are incorrect</div></td>
+            <td class="kpi-baseline">—</td>
+            <td class="kpi-target">&lt;2–3%</td>
+            <td><span class="kpi-badge target">Target</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Overdue invoices with complete evidence</div><div style="font-size:12px;color:var(--text-secondary);">% of overdue AR with full document chain</div></td>
+            <td class="kpi-baseline">Measured at pilot start</td>
+            <td class="kpi-target">+30 pp</td>
+            <td><span class="kpi-badge target">Target</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Unallocated cash</div><div style="font-size:12px;color:var(--text-secondary);">payments received but not matched to invoice</div></td>
+            <td class="kpi-baseline">Measured at pilot start</td>
+            <td class="kpi-target">−50%</td>
+            <td><span class="kpi-badge target">Target</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Time from dispute → dossier ready</div><div style="font-size:12px;color:var(--text-secondary);">hours to prepare evidence package</div></td>
+            <td class="kpi-baseline">Measured at pilot start</td>
+            <td class="kpi-target">−50%</td>
+            <td><span class="kpi-badge target">Target</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Days Sales Outstanding (DSO)</div><div style="font-size:12px;color:var(--text-secondary);">rolling 90-day average</div></td>
+            <td class="kpi-baseline">60–90 days (construction baseline)</td>
+            <td class="kpi-target">Measure only</td>
+            <td><span class="kpi-badge measure">Observe</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px; font-size:12px; color:var(--neutral);">
+        All targets are pilot thresholds for internal validation, not published benchmarks. DSO is tracked but no reduction is promised — most delay is liquidity-driven, not document-driven.
+      </div>
+    </section>
+
+    <!-- SECTION 7 — PRICING HYPOTHESIS -->
+    <section>
+      <div class="section-label">07 — Pricing Hypothesis (Needs Validation)</div>
+      <div class="pricing-grid">
+
+        <div class="pricing-card">
+          <div class="tier">Pilot</div>
+          <div class="price">15–30M VND <span>one-time</span></div>
+          <div class="desc">6–8 week onboarding with anonymised data set</div>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="tier">SME SaaS</div>
+          <div class="price">3–5M VND <span>/ month</span></div>
+          <div class="desc">Up to a few hundred invoices / month, single entity</div>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="tier">Mid-Market</div>
+          <div class="price">6–12M VND <span>/ month</span></div>
+          <div class="desc">Multi-entity, ERP integration, priority exception inbox</div>
+        </div>
+
+        <div class="pricing-card">
+          <div class="tier">ERP / API Custom</div>
+          <div class="price">20–80M VND <span>setup</span></div>
+          <div class="desc">Plus monthly subscription. Full API, dedicated onboarding.</div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:24px;">
+        <div class="section-label" style="margin-bottom:12px;">ARR Scenarios</div>
+        <div class="arr-row">
+          <div class="arr-card">
+            <div class="scenario">20 customers × 6M VND/month</div>
+            <div class="arr-val">1.44B VND</div>
+            <div class="arr-sub">Annual Recurring Revenue (illustrative)</div>
+          </div>
+          <div class="arr-card">
+            <div class="scenario">50 customers × 6M VND/month</div>
+            <div class="arr-val">3.6B VND</div>
+            <div class="arr-sub">Annual Recurring Revenue (illustrative)</div>
+          </div>
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:var(--neutral);">
+          Revenue model is illustrative only. Customers buy an AR workflow — not LLM tokens. Pricing must be validated through customer interviews before commit.
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 8 — COMPETITIVE LANDSCAPE -->
+    <section>
+      <div class="section-label">08 — Competitive Landscape &amp; Positioning</div>
+      <div class="comp-grid">
+
+        <div class="comp-card">
+          <div class="comp-name">MISA AMIS</div>
+          <div class="comp-focus">AR management, bank reconciliation, AI document matching, e-invoice sync</div>
+          <span class="comp-tag overlap">Direct Overlap</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">Bizzi</div>
+          <div class="comp-focus">AI/RPA invoice processing, tax invoice sync, invoice–PO matching</div>
+          <span class="comp-tag overlap">Direct Overlap</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">Innomation</div>
+          <div class="comp-focus">AI invoice matching: invoice ↔ PO ↔ goods receipt ↔ contract, exception mgmt</div>
+          <span class="comp-tag overlap">Direct Overlap</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">BRAVO ERP</div>
+          <div class="comp-focus">AR/sales modules for manufacturing &amp; construction material companies</div>
+          <span class="comp-tag adjacent">Adjacent</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">Validus Vietnam</div>
+          <div class="comp-focus">SME financing; supply-chain finance for Vietnamese businesses</div>
+          <span class="comp-tag adjacent">Adjacent</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">ASYX</div>
+          <div class="comp-focus">SCF platform for financial institutions in SEA incl. Vietnam deployment</div>
+          <span class="comp-tag adjacent">Adjacent</span>
+        </div>
+
+        <div class="comp-card" style="border-color:var(--primary); background:#F5F3FF;">
+          <div class="comp-name" style="color:var(--primary);">PayTrace Gap</div>
+          <div class="comp-focus">Order-to-payment <em>evidence reconstruction</em> for disputed AR — exception/evidence layer on top of existing ERP/accounting</div>
+          <span class="comp-tag gap">Target Position</span>
+        </div>
+
+      </div>
+      <div style="margin-top:16px; padding:16px 20px; background:var(--surface); border:1px solid var(--border); border-radius:8px; font-size:13px; color:var(--text-secondary);">
+        <strong style="color:var(--text-primary);">Defensible wedge:</strong>
+        "Reconstruct a disputed receivable from order to payment, automatically."
+        MISA = system of record. Bizzi/Innomation = AP automation. PayTrace = <strong>exception and evidence layer for Accounts Receivable</strong> in complex B2B verticals.
+      </div>
+    </section>
+
+    <!-- SECTION 9 — DATA &amp; INTEGRATION SOURCES -->
+    <section>
+      <div class="section-label">09 — Integration Data Sources</div>
+      <table class="kpi-table">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Data</th>
+            <th>MVP Approach</th>
+            <th>Production</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="kpi-name">Excel / CSV</td>
+            <td>AR ledger, PO list, payment log</td>
+            <td style="color:var(--success);">Immediate (upload)</td>
+            <td>Scheduled import</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">ERP / Accounting</td>
+            <td>Invoice, order, customer master</td>
+            <td>File export / manual import</td>
+            <td>REST API (MISA, FAST, BRAVO)</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">E-Invoice (hóa đơn điện tử)</td>
+            <td>XML/PDF tax invoices</td>
+            <td>XML upload</td>
+            <td>API via MISA/Viettel eTax (Nghị định 254/2026)</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Bank Statement</td>
+            <td>Cash receipts, payment references</td>
+            <td>CSV/XLSX upload</td>
+            <td>BankHub / bank API (JetPay MISA ecosystem)</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Delivery / POD</td>
+            <td>Phiếu giao hàng, vận đơn</td>
+            <td>PDF/image upload + OCR</td>
+            <td>Carrier API / WMS integration</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Acceptance Docs</td>
+            <td>Biên bản nghiệm thu (construction)</td>
+            <td>PDF/image upload + OCR</td>
+            <td>DMS / ERP integration</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Email / Zalo</td>
+            <td>Dispute context, promises-to-pay</td>
+            <td>.eml / manual upload</td>
+            <td>Microsoft 365 / Google Workspace API</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px; font-size:12px; color:var(--neutral);">
+        E-invoice framework is national law from 1 July 2026 under Luật Quản lý thuế mới + Nghị định 254/2026. Bank connectivity is feasible but not uniform — use CSV for hackathon demo, not live Open Banking.
+      </div>
+    </section>
+
+    <!-- SECTION 10 — REGULATORY ── -->
+    <section>
+      <div class="section-label">10 — Regulatory Context</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px;">
+          <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--neutral); margin-bottom:8px;">Personal Data Protection</div>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:700; letter-spacing:-0.02em; margin-bottom:8px;">Luật số 91/2025/QH15</div>
+          <div style="font-size:13px; color:var(--text-secondary);">In effect from <strong>1 January 2026</strong>. Decree 356/2025/NĐ-CP. AR dossiers contain personal data (contact names, phone, email, bank accounts, signatures). Production systems require data minimisation, access control, encryption, retention policy, and data-subject rights mechanism.</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px;">
+          <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--neutral); margin-bottom:8px;">E-Invoice Mandate</div>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:700; letter-spacing:-0.02em; margin-bottom:8px;">Nghị định 254/2026</div>
+          <div style="font-size:13px; color:var(--text-secondary);">National e-invoice system fully operational from <strong>1 July 2026</strong>. All B2B invoices are structured digital data (XML). Enables deterministic invoice parsing without OCR — a key technical advantage for PayTrace data ingestion.</div>
+        </div>
+      </div>
+      <div style="margin-top:16px; padding:14px 20px; background:#FFFBEB; border:1px solid #F59E0B33; border-radius:8px; font-size:13px; color:#92400E;">
+        <strong>Hackathon safe approach:</strong> Use synthetic / anonymised data only. Read-only workflow. No automated payment demands. No credit decisions. No data transfer to foreign AI/cloud services without legal review.
+      </div>
+    </section>
+
+    <!-- FOOTNOTE -->
+    <div class="footnote">
+      <strong>Data sources:</strong>
+      Atradius Payment Practices Barometer Vietnam 2025 and 2026 editions · FiinGroup Vietnam Sector DSO Report 2025 · IFC Supply Chain Finance Programme Vietnam ·
+      General Statistics Office of Vietnam (construction enterprise survey) · Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 &amp; Nghị định 356/2025/NĐ-CP ·
+      Luật Quản lý thuế mới &amp; Nghị định 254/2026 (e-invoice) · MISA, Bizzi, Innomation, BRAVO, Validus, ASYX public product documentation.
+      <br /><br />
+      <strong>Disclaimer:</strong> Pricing, ARR, DSO reduction targets, and working-capital figures are illustrative models or pilot thresholds — not market forecasts or performance guarantees.
+      This dashboard supports the RMIT Hack-A-Venture 2026 and AI4Biz/KTC submission for Svaro PayTrace (Vietnam vertical).
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>

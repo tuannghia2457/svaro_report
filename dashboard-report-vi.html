@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Svaro PayTrace — Bảng Thống Kê Thị Trường Việt Nam</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@700,600,500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:        #6366F1;
+      --primary-hover:  #4F46E5;
+      --secondary:      #20970B;
+      --neutral:        #9C9C9C;
+      --bg:             #FAFAFA;
+      --surface:        #FFFFFF;
+      --text-primary:   #0A0A0A;
+      --text-secondary: #6B6B6B;
+      --border:         #E8E8EC;
+      --success:        #10B981;
+      --warning:        #F59E0B;
+      --error:          #EF4444;
+      --font-display:   'General Sans', system-ui, sans-serif;
+      --font-body:      'DM Sans', system-ui, sans-serif;
+    }
+
+    html { background: var(--bg); color: var(--text-primary); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      height: 56px; background: rgba(250,250,250,0.85);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px;
+    }
+    .nav-logo {
+      font-family: var(--font-display); font-size: 18px; font-weight: 700;
+      letter-spacing: -0.03em; color: var(--text-primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-logo .dot { width: 8px; height: 8px; border-radius: 9999px; background: var(--primary); }
+    .nav-meta { font-size: 13px; color: var(--text-secondary); }
+    .nav-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #EEF2FF; color: var(--primary); border-radius: 4px;
+      padding: 2px 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .lang-switch {
+      display: inline-flex; gap: 4px; align-items: center;
+      font-size: 12px; color: var(--text-secondary);
+    }
+    .lang-switch a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+    main { padding: 48px 0 96px; }
+
+    .hero { margin-bottom: 48px; }
+    .hero .overline { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--primary); margin-bottom: 12px; }
+    .hero h1 { font-family: var(--font-display); font-size: 40px; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; color: var(--text-primary); margin-bottom: 12px; }
+    .hero h1 span { color: var(--primary); }
+    .hero p { font-size: 15px; color: var(--text-secondary); max-width: 640px; }
+    .hero-meta { display: flex; gap: 24px; margin-top: 20px; flex-wrap: wrap; }
+    .hero-meta .chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 9999px;
+      padding: 4px 12px; font-size: 12px; color: var(--text-secondary);
+    }
+    .hero-meta .chip strong { color: var(--text-primary); font-weight: 600; }
+
+    .section-label {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--neutral); margin-bottom: 16px; padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    section { margin-bottom: 48px; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px 20px; transition: box-shadow 200ms, transform 200ms;
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 8px; }
+    .stat-card .value { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -0.03em; color: var(--text-primary); line-height: 1; }
+    .stat-card .value.primary { color: var(--primary); }
+    .stat-card .value.success { color: var(--success); }
+    .stat-card .value.warning { color: var(--warning); }
+    .stat-card .value.error   { color: var(--error); }
+    .stat-card .sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+    .stat-card .source { font-size: 11px; color: var(--neutral); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+
+    .dso-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 640px) { .dso-grid { grid-template-columns: 1fr; } }
+    .dso-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .dso-card .industry { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+    .dso-bar-wrap { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .dso-bar-bg { flex: 1; height: 10px; background: var(--bg); border-radius: 9999px; overflow: hidden; }
+    .dso-bar-fill { height: 100%; border-radius: 9999px; }
+    .dso-days { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.03em; }
+    .dso-label { font-size: 12px; color: var(--text-secondary); }
+
+    .exception-list { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .exception-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background 150ms;
+    }
+    .exception-row:last-child { border-bottom: none; }
+    .exception-row:hover { background: var(--bg); }
+    .exception-row .left { display: flex; align-items: center; gap: 12px; }
+    .exception-row .dot { width: 8px; height: 8px; border-radius: 9999px; flex-shrink: 0; }
+    .exception-row .name { font-size: 14px; font-weight: 500; }
+    .exception-row .desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    .exception-row .right { display: flex; align-items: center; gap: 12px; }
+    .exception-row .count { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: -0.02em; min-width: 32px; text-align: right; }
+    .pct-bar-bg { width: 80px; height: 6px; background: var(--bg); border-radius: 9999px; overflow: hidden; }
+    .pct-bar-fill { height: 100%; border-radius: 9999px; }
+
+    .value-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .value-table th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--neutral); padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .value-table td { font-size: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); color: var(--text-primary); }
+    .value-table tr:last-child td { border-bottom: none; }
+    .value-table tr:hover td { background: #F5F5FF; }
+    .value-table td.num { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; }
+    .value-table td.highlight { color: var(--primary); font-weight: 600; }
+    .value-table td.success-text { color: var(--success); font-weight: 600; }
+
+    .kpi-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .kpi-table th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--neutral); padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .kpi-table td { font-size: 13px; padding: 14px 20px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .kpi-table tr:last-child td { border-bottom: none; }
+    .kpi-table tr:hover td { background: #F5F5FF; }
+    .kpi-table .kpi-name { font-weight: 500; font-size: 14px; }
+    .kpi-table .kpi-baseline { color: var(--text-secondary); }
+    .kpi-table .kpi-target { color: var(--primary); font-weight: 600; }
+    .kpi-badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; }
+    .kpi-badge.measure { background: #F0F9FF; color: #0284C7; }
+    .kpi-badge.target  { background: #EEF2FF; color: var(--primary); }
+
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .pricing-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 24px 20px; transition: box-shadow 200ms, transform 200ms;
+    }
+    .pricing-card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
+    .pricing-card.featured { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99,102,241,0.12); }
+    .pricing-card .tier { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px; }
+    .pricing-card .price { font-family: var(--font-display); font-size: 24px; font-weight: 700; letter-spacing: -0.03em; color: var(--text-primary); margin-bottom: 4px; }
+    .pricing-card .price span { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+    .pricing-card .desc { font-size: 12px; color: var(--text-secondary); }
+
+    .arr-row { display: flex; gap: 20px; flex-wrap: wrap; }
+    .arr-card { flex: 1; min-width: 200px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+    .arr-card .scenario { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
+    .arr-card .arr-val { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.03em; color: var(--primary); }
+    .arr-card .arr-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+    .comp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .comp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; }
+    .comp-card .comp-name { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .comp-card .comp-focus { font-size: 12px; color: var(--text-secondary); }
+    .comp-card .comp-tag { display: inline-block; margin-top: 8px; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .comp-card .comp-tag.overlap   { background: #FEF2F2; color: var(--error); }
+    .comp-card .comp-tag.adjacent  { background: #FFFBEB; color: #92400E; }
+    .comp-card .comp-tag.gap       { background: #ECFDF5; color: #065F46; }
+
+    .segment-table { width: 100%; border-collapse: collapse; background: var(--surface); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .segment-table th { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--neutral); padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); background: var(--bg); }
+    .segment-table td { font-size: 13px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+    .segment-table tr:last-child td { border-bottom: none; }
+    .segment-table tr:hover td { background: #F5F5FF; }
+    .priority-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+    .priority-badge.high   { background: #EEF2FF; color: var(--primary); }
+    .priority-badge.medium { background: #FFFBEB; color: #92400E; }
+    .priority-badge.low    { background: #F5F5F5; color: var(--neutral); }
+
+    .footnote { margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--neutral); line-height: 1.7; }
+    .footnote strong { color: var(--text-secondary); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="dot"></div>
+    Svaro PayTrace
+  </div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <span class="lang-switch"><a href="dashboard-report.html">EN</a> · VI</span>
+    <span class="nav-meta">Báo Cáo Thị Trường Việt Nam</span>
+    <span class="nav-badge">Dữ liệu 2025 – 2026</span>
+  </div>
+</nav>
+
+<main>
+  <div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="overline">Bảng Thống Kê Thị Trường</div>
+      <h1>Công Nợ Phải Thu B2B<br /><span>tại Việt Nam</span></h1>
+      <p>Số liệu thực chứng cho cơ hội PayTrace — chuỗi cung ứng xây dựng, phân mảnh vốn lưu động và khoảng cách từ đơn hàng đến thanh toán.</p>
+      <div class="hero-meta">
+        <div class="chip"><strong>Nguồn:</strong> Atradius 2025–2026, FiinGroup 2025, IFC Vietnam SCF</div>
+        <div class="chip"><strong>Vertical trọng tâm:</strong> Xây dựng &amp; phân phối VLXD</div>
+        <div class="chip"><strong>Ngày nghiên cứu:</strong> Tháng 10 năm 2026</div>
+      </div>
+    </div>
+
+    <!-- 01 — THỊ TRƯỜNG TÍN DỤNG B2B -->
+    <section>
+      <div class="section-label">01 — Thị Trường Tín Dụng B2B Việt Nam</div>
+      <div class="stat-grid">
+
+        <div class="stat-card">
+          <div class="label">Doanh số B2B bán chịu (2025)</div>
+          <div class="value primary">65%</div>
+          <div class="sub">doanh thu B2B được bán theo tín dụng thương mại</div>
+          <div class="source">Atradius Payment Practices Barometer Vietnam 2025</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">Hóa đơn B2B quá hạn (2025)</div>
+          <div class="value error">39%</div>
+          <div class="sub">trong tổng số hóa đơn B2B đã quá ngày thanh toán</div>
+          <div class="source">Atradius 2025</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">Kỳ hạn thanh toán trung bình</div>
+          <div class="value warning">45 ngày</div>
+          <div class="sub">kỳ hạn thanh toán đã thỏa thuận trung bình</div>
+          <div class="source">Atradius 2025</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">Tỷ lệ nợ khó đòi (2025)</div>
+          <div class="value error">3%</div>
+          <div class="sub">doanh số bán chịu B2B bị xóa sổ</div>
+          <div class="source">Atradius 2025</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">Doanh số B2B bán chịu (2026)</div>
+          <div class="value warning">~45%</div>
+          <div class="sub">Giảm tỷ trọng nhưng kỳ hạn vẫn dài hơn châu Á</div>
+          <div class="source">Atradius 2026</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="label">Mục tiêu IFC SCF — Việt Nam</div>
+          <div class="value success">$35 tỷ</div>
+          <div class="sub">vốn lưu động cho 500K+ SME (Chương trình SCF Giai đoạn 2)</div>
+          <div class="source">IFC Supply Chain Finance Programme</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 02 — DSO THEO NGÀNH -->
+    <section>
+      <div class="section-label">02 — Số Ngày Thu Tiền Trung Bình (DSO) Theo Ngành (Trung Vị, 2025)</div>
+      <div class="dso-grid">
+
+        <div class="dso-card">
+          <div class="industry">Xây Dựng &amp; Phân Phối VLXD</div>
+          <div class="dso-bar-wrap">
+            <div class="dso-bar-bg">
+              <div class="dso-bar-fill" style="width:100%; background:var(--error);"></div>
+            </div>
+          </div>
+          <div class="dso-days" style="color:var(--error);">92 ngày</div>
+          <div class="dso-label" style="margin-top:4px;">Khoản phải thu bị khóa lâu nhất — vertical ưu tiên của PayTrace</div>
+          <div style="font-size:11px; color:var(--neutral); margin-top:8px; border-top:1px solid var(--border); padding-top:8px;">Nguồn: FiinGroup, dữ liệu ngành 2025</div>
+        </div>
+
+        <div class="dso-card">
+          <div class="industry">Bán Buôn &amp; Bán Lẻ</div>
+          <div class="dso-bar-wrap">
+            <div class="dso-bar-bg">
+              <div class="dso-bar-fill" style="width:51%; background:var(--warning);"></div>
+            </div>
+          </div>
+          <div class="dso-days" style="color:var(--warning);">47 ngày</div>
+          <div class="dso-label" style="margin-top:4px;">Vòng quay nhanh hơn — mục tiêu phụ cho module phân phối</div>
+          <div style="font-size:11px; color:var(--neutral); margin-top:8px; border-top:1px solid var(--border); padding-top:8px;">Nguồn: FiinGroup, dữ liệu ngành 2025</div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:16px; padding:16px 20px; background:var(--surface); border:1px solid var(--border); border-radius:8px;">
+        <div style="font-size:13px; color:var(--text-secondary);">
+          <strong style="color:var(--text-primary);">Tại sao DSO xây dựng quan trọng:</strong>
+          26,3% doanh nghiệp xây dựng gặp khó khăn vì nợ đọng không được thanh quyết toán đúng hạn; 21,8% thiếu vốn. Nguyên nhân chính là phân mảnh chứng từ, không chỉ là thiếu thanh khoản.
+          <em style="color:var(--neutral);">(Cục Thống kê Việt Nam; FiinGroup 2025)</em>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 — MÔ HÌNH GIÁ TRỊ VỐN LƯU ĐỘNG -->
+    <section>
+      <div class="section-label">03 — Vốn Lưu Động Được Giải Phóng Khi Giảm DSO</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">
+        Mô hình minh họa. Công thức: Doanh thu năm × Số ngày giảm DSO ÷ 365. Không phải dự báo.
+      </p>
+      <table class="value-table">
+        <thead>
+          <tr>
+            <th>Doanh thu năm (VNĐ)</th>
+            <th>Giảm DSO</th>
+            <th>Vốn lưu động giải phóng</th>
+            <th>Ghi chú</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">50 tỷ</td>
+            <td>3 ngày</td>
+            <td class="num highlight">~411 triệu VNĐ</td>
+            <td style="color:var(--text-secondary);">Nhà phân phối nhỏ, kịch bản pilot</td>
+          </tr>
+          <tr>
+            <td class="num">100 tỷ</td>
+            <td>5 ngày</td>
+            <td class="num highlight">~1,37 tỷ VNĐ</td>
+            <td style="color:var(--text-secondary);">Nhà cung cấp B2B cỡ vừa</td>
+          </tr>
+          <tr>
+            <td class="num">100 tỷ</td>
+            <td>10 ngày</td>
+            <td class="num success-text">~2,74 tỷ VNĐ</td>
+            <td style="color:var(--text-secondary);">Kịch bản lạc quan, tự động hóa hoàn toàn chứng từ</td>
+          </tr>
+          <tr>
+            <td class="num">200 tỷ</td>
+            <td>5 ngày</td>
+            <td class="num success-text">~2,74 tỷ VNĐ</td>
+            <td style="color:var(--text-secondary);">Nhà phân phối VLXD lớn</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px; font-size:12px; color:var(--neutral);">
+        PayTrace không trực tiếp làm giảm DSO. Giá trị đến từ việc giảm thời gian tái lập chứng từ trong các trường hợp tranh chấp và ngoại lệ, từ đó đẩy nhanh thu tiền và chuẩn bị hồ sơ tài chính.
+      </div>
+    </section>
+
+    <!-- 04 — PHÂN KHÚC MỤC TIÊU -->
+    <section>
+      <div class="section-label">04 — Phân Khúc Mục Tiêu</div>
+      <table class="segment-table">
+        <thead>
+          <tr>
+            <th>Phân khúc</th>
+            <th>Lý do phù hợp</th>
+            <th>Ưu tiên</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:500;">Nhà phân phối VLXD bán B2B</td>
+            <td>Đơn hàng lớn, bán chịu, giao nhiều lần, đối chiếu PO→giao hàng→hóa đơn phức tạp</td>
+            <td><span class="priority-badge high">Rất Cao</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;">Nhà thầu phụ xây dựng</td>
+            <td>Thanh toán theo milestone, biên bản nghiệm thu, retention, thanh quyết toán chậm</td>
+            <td><span class="priority-badge high">Rất Cao</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;">Nhà phân phối công nghiệp</td>
+            <td>Nhiều SKU, PO, phiếu giao, thanh toán một phần</td>
+            <td><span class="priority-badge high">Cao</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;">Nhà cung cấp xuất khẩu / sản xuất</td>
+            <td>Phù hợp SCF và receivables financing; chờ 30–60 ngày sau giao hàng (dữ liệu IFC)</td>
+            <td><span class="priority-badge high">Cao</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500;">Bán lẻ / vi doanh nghiệp</td>
+            <td>Quy trình đơn giản hơn; cạnh tranh phần mềm rất cao (MISA, Bizzi)</td>
+            <td><span class="priority-badge low">Thấp</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px; padding:14px 20px; background:#EEF2FF; border-radius:8px; font-size:13px; color:var(--primary);">
+        <strong>Hồ sơ khách hàng lý tưởng (ICP):</strong> Nhà phân phối hoặc nhà thầu doanh thu ₫50–500 tỷ/năm, 2–10 nhân viên tài chính/công nợ, hàng trăm đến hàng nghìn hóa đơn B2B mỗi tháng, đang dùng MISA / FAST / BRAVO / Excel.
+      </div>
+    </section>
+
+    <!-- 05 — TRẠNG THÁI NGOẠI LỆ -->
+    <section>
+      <div class="section-label">05 — Phân Loại Trạng Thái Ngoại Lệ (Engine Đối Soát Chứng Từ)</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">
+        Các trạng thái mà engine đối soát chứng từ của PayTrace phát hiện. Phân bố dưới đây là minh họa cho bộ dữ liệu demo 100 hóa đơn.
+      </p>
+      <div class="exception-list">
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--success);"></div>
+            <div>
+              <div class="name">Đã Có Đủ Bằng Chứng</div>
+              <div class="desc">Hợp đồng → PO → Giao hàng → Nghiệm thu → Hóa đơn → Thanh toán — toàn bộ khớp</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--success);">58</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:58%; background:var(--success);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--warning);"></div>
+            <div>
+              <div class="name">Thanh Toán Một Phần</div>
+              <div class="desc">Đã nhận thanh toán nhưng chưa đủ giá trị hóa đơn</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--warning);">14</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:14%; background:var(--warning);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--error);"></div>
+            <div>
+              <div class="name">Thiếu Chứng Từ Giao Hàng</div>
+              <div class="desc">Không có phiếu giao hàng / POD liên kết với hóa đơn</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--error);">9</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:9%; background:var(--error);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--error);"></div>
+            <div>
+              <div class="name">Thiếu Biên Bản Nghiệm Thu</div>
+              <div class="desc">Không có biên bản nghiệm thu cho các milestone xây dựng</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--error);">7</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:7%; background:var(--error);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--error);"></div>
+            <div>
+              <div class="name">Sai Lệch Số Tiền</div>
+              <div class="desc">Số tiền hóa đơn ≠ số tiền PO (VAT, chiết khấu, giao hàng một phần)</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--error);">5</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:5%; background:var(--error);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--primary);"></div>
+            <div>
+              <div class="name">Đã Thu Tiền, Chưa Phân Bổ</div>
+              <div class="desc">Giao dịch ngân hàng khớp khách hàng nhưng chưa liên kết hóa đơn</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--primary);">4</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:4%; background:var(--primary);"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:#0EA5E9;"></div>
+            <div>
+              <div class="name">Hóa Đơn Quá Hạn (Không Có Ngoại Lệ)</div>
+              <div class="desc">Đã có đủ chứng từ nhưng quá ngày đáo hạn — cần follow-up thu tiền</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:#0EA5E9;">2</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:2%; background:#0EA5E9;"></div></div>
+          </div>
+        </div>
+
+        <div class="exception-row">
+          <div class="left">
+            <div class="dot" style="background:var(--neutral);"></div>
+            <div>
+              <div class="name">Nghi Trùng Lặp</div>
+              <div class="desc">Hai hóa đơn cùng số tiền, cùng khách hàng, trong vòng 3 ngày</div>
+            </div>
+          </div>
+          <div class="right">
+            <div class="count" style="color:var(--neutral);">1</div>
+            <div class="pct-bar-bg"><div class="pct-bar-fill" style="width:1%; background:var(--neutral);"></div></div>
+          </div>
+        </div>
+
+      </div>
+      <div style="margin-top:12px; font-size:12px; color:var(--neutral);">
+        Số lượng là minh họa cho bộ demo 100 hóa đơn. Mục tiêu tỷ lệ tự động khớp: &gt;70% ca sạch, tỷ lệ khớp sai &lt;2–3%.
+      </div>
+    </section>
+
+    <!-- 06 — KPI PILOT -->
+    <section>
+      <div class="section-label">06 — Mục Tiêu KPI Pilot</div>
+      <table class="kpi-table">
+        <thead>
+          <tr>
+            <th>KPI</th>
+            <th>Baseline Đo Lường</th>
+            <th>Mục Tiêu Pilot</th>
+            <th>Loại</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="kpi-name">Thời gian tái lập hồ sơ công nợ</div><div style="font-size:12px;color:var(--text-secondary);">phút/case tranh chấp</div></td>
+            <td class="kpi-baseline">Đo lúc bắt đầu pilot</td>
+            <td class="kpi-target">−50%</td>
+            <td><span class="kpi-badge target">Mục tiêu</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Tỷ lệ tự động khớp</div><div style="font-size:12px;color:var(--text-secondary);">% ca sạch khớp không cần người duyệt</div></td>
+            <td class="kpi-baseline">0% (chưa có hệ thống)</td>
+            <td class="kpi-target">&gt;70%</td>
+            <td><span class="kpi-badge target">Mục tiêu</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Tỷ lệ khớp sai</div><div style="font-size:12px;color:var(--text-secondary);">% kết quả AI khớp nhầm</div></td>
+            <td class="kpi-baseline">—</td>
+            <td class="kpi-target">&lt;2–3%</td>
+            <td><span class="kpi-badge target">Mục tiêu</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Hóa đơn quá hạn có đủ chứng từ</div><div style="font-size:12px;color:var(--text-secondary);">% khoản phải thu quá hạn có chuỗi chứng từ đầy đủ</div></td>
+            <td class="kpi-baseline">Đo lúc bắt đầu pilot</td>
+            <td class="kpi-target">+30 điểm %</td>
+            <td><span class="kpi-badge target">Mục tiêu</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Tiền thu chưa phân bổ</div><div style="font-size:12px;color:var(--text-secondary);">thanh toán nhận được nhưng chưa khớp hóa đơn</div></td>
+            <td class="kpi-baseline">Đo lúc bắt đầu pilot</td>
+            <td class="kpi-target">−50%</td>
+            <td><span class="kpi-badge target">Mục tiêu</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Thời gian tranh chấp → hồ sơ sẵn sàng</div><div style="font-size:12px;color:var(--text-secondary);">giờ để chuẩn bị bộ bằng chứng</div></td>
+            <td class="kpi-baseline">Đo lúc bắt đầu pilot</td>
+            <td class="kpi-target">−50%</td>
+            <td><span class="kpi-badge target">Mục tiêu</span></td>
+          </tr>
+          <tr>
+            <td><div class="kpi-name">Số ngày thu tiền (DSO)</div><div style="font-size:12px;color:var(--text-secondary);">trung bình lăn 90 ngày</div></td>
+            <td class="kpi-baseline">60–90 ngày (baseline xây dựng)</td>
+            <td class="kpi-target">Chỉ theo dõi</td>
+            <td><span class="kpi-badge measure">Quan sát</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px; font-size:12px; color:var(--neutral);">
+        Tất cả mục tiêu là ngưỡng pilot nội bộ, không phải benchmark ngành. DSO được theo dõi nhưng không cam kết giảm — phần lớn chậm trả xuất phát từ thiếu thanh khoản, không phải lỗi chứng từ.
+      </div>
+    </section>
+
+    <!-- 07 — GIÁ ĐỀ XUẤT -->
+    <section>
+      <div class="section-label">07 — Giá Đề Xuất (Cần Xác Nhận Bằng Phỏng Vấn)</div>
+      <div class="pricing-grid">
+
+        <div class="pricing-card">
+          <div class="tier">Pilot</div>
+          <div class="price">15–30 triệu VNĐ <span>một lần</span></div>
+          <div class="desc">Onboarding 6–8 tuần với bộ dữ liệu ẩn danh</div>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="tier">SME SaaS</div>
+          <div class="price">3–5 triệu VNĐ <span>/ tháng</span></div>
+          <div class="desc">Đến vài trăm hóa đơn/tháng, một pháp nhân</div>
+        </div>
+
+        <div class="pricing-card featured">
+          <div class="tier">Mid-Market</div>
+          <div class="price">6–12 triệu VNĐ <span>/ tháng</span></div>
+          <div class="desc">Nhiều pháp nhân, tích hợp ERP, exception inbox ưu tiên</div>
+        </div>
+
+        <div class="pricing-card">
+          <div class="tier">ERP / API Tùy Chỉnh</div>
+          <div class="price">20–80 triệu VNĐ <span>setup</span></div>
+          <div class="desc">Cộng subscription hàng tháng. Full API, onboarding riêng.</div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:24px;">
+        <div class="section-label" style="margin-bottom:12px;">Kịch Bản ARR Minh Họa</div>
+        <div class="arr-row">
+          <div class="arr-card">
+            <div class="scenario">20 khách × 6 triệu VNĐ/tháng</div>
+            <div class="arr-val">1,44 tỷ VNĐ</div>
+            <div class="arr-sub">Doanh thu định kỳ hàng năm (minh họa)</div>
+          </div>
+          <div class="arr-card">
+            <div class="scenario">50 khách × 6 triệu VNĐ/tháng</div>
+            <div class="arr-val">3,6 tỷ VNĐ</div>
+            <div class="arr-sub">Doanh thu định kỳ hàng năm (minh họa)</div>
+          </div>
+        </div>
+        <div style="margin-top:10px; font-size:12px; color:var(--neutral);">
+          Mô hình doanh thu chỉ mang tính minh họa. Khách hàng mua quy trình AR, không mua token LLM. Cần xác nhận giá qua phỏng vấn khách hàng trước khi cam kết.
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 — ĐỐI THỦ CẠNH TRANH -->
+    <section>
+      <div class="section-label">08 — Bối Cảnh Cạnh Tranh &amp; Định Vị</div>
+      <div class="comp-grid">
+
+        <div class="comp-card">
+          <div class="comp-name">MISA AMIS</div>
+          <div class="comp-focus">Quản lý công nợ phải thu, đối chiếu sao kê ngân hàng, AI ghép chứng từ, đồng bộ hóa đơn điện tử</div>
+          <span class="comp-tag overlap">Trùng trực tiếp</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">Bizzi</div>
+          <div class="comp-focus">AI/RPA xử lý hóa đơn, đồng bộ hóa đơn thuế, ghép hóa đơn–PO</div>
+          <span class="comp-tag overlap">Trùng trực tiếp</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">Innomation</div>
+          <div class="comp-focus">AI ghép hóa đơn ↔ PO ↔ phiếu nhập kho ↔ hợp đồng, quản lý ngoại lệ</div>
+          <span class="comp-tag overlap">Trùng trực tiếp</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">BRAVO ERP</div>
+          <div class="comp-focus">Phân hệ AR/bán hàng cho sản xuất &amp; VLXD</div>
+          <span class="comp-tag adjacent">Liền kề</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">Validus Vietnam</div>
+          <div class="comp-focus">Tài chính SME; supply-chain finance cho doanh nghiệp Việt Nam</div>
+          <span class="comp-tag adjacent">Liền kề</span>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-name">ASYX</div>
+          <div class="comp-focus">Nền tảng SCF cho tổ chức tài chính ở Đông Nam Á, có triển khai tại Việt Nam</div>
+          <span class="comp-tag adjacent">Liền kề</span>
+        </div>
+
+        <div class="comp-card" style="border-color:var(--primary); background:#F5F3FF;">
+          <div class="comp-name" style="color:var(--primary);">Khoảng trống PayTrace</div>
+          <div class="comp-focus">Tái lập bằng chứng từ đơn hàng đến thanh toán cho khoản phải thu tranh chấp — lớp ngoại lệ và bằng chứng trên ERP/kế toán hiện có</div>
+          <span class="comp-tag gap">Định vị mục tiêu</span>
+        </div>
+
+      </div>
+      <div style="margin-top:16px; padding:16px 20px; background:var(--surface); border:1px solid var(--border); border-radius:8px; font-size:13px; color:var(--text-secondary);">
+        <strong style="color:var(--text-primary);">Lợi thế khác biệt:</strong>
+        "Tự động tái lập khoản phải thu tranh chấp từ đơn hàng đến thanh toán."
+        MISA = system of record. Bizzi/Innomation = AP automation. PayTrace = <strong>lớp ngoại lệ và bằng chứng cho Accounts Receivable</strong> trong các vertical B2B phức tạp.
+      </div>
+    </section>
+
+    <!-- 09 — NGUỒN DỮ LIỆU TÍCH HỢP -->
+    <section>
+      <div class="section-label">09 — Nguồn Dữ Liệu Tích Hợp</div>
+      <table class="kpi-table">
+        <thead>
+          <tr>
+            <th>Nguồn</th>
+            <th>Dữ liệu</th>
+            <th>MVP</th>
+            <th>Production</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="kpi-name">Excel / CSV</td>
+            <td>Sổ công nợ, danh sách PO, nhật ký thanh toán</td>
+            <td style="color:var(--success);">Ngay lập tức (upload)</td>
+            <td>Import định kỳ</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">ERP / Kế toán</td>
+            <td>Hóa đơn, đơn hàng, master khách hàng</td>
+            <td>Xuất file / import thủ công</td>
+            <td>REST API (MISA, FAST, BRAVO)</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Hóa đơn điện tử</td>
+            <td>Hóa đơn thuế XML/PDF</td>
+            <td>Upload XML</td>
+            <td>API qua MISA/Viettel eTax (Nghị định 254/2026)</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Sao kê ngân hàng</td>
+            <td>Tiền thu, mã tham chiếu thanh toán</td>
+            <td>Upload CSV/XLSX</td>
+            <td>BankHub / Bank API (hệ sinh thái JetPay MISA)</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Phiếu giao hàng / POD</td>
+            <td>Phiếu giao, vận đơn</td>
+            <td>Upload PDF/ảnh + OCR</td>
+            <td>API hãng vận chuyển / WMS</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Biên bản nghiệm thu</td>
+            <td>Acceptance documents (xây dựng)</td>
+            <td>Upload PDF/ảnh + OCR</td>
+            <td>DMS / ERP integration</td>
+          </tr>
+          <tr>
+            <td class="kpi-name">Email / Zalo</td>
+            <td>Ngữ cảnh tranh chấp, cam kết thanh toán</td>
+            <td>Upload .eml / thủ công</td>
+            <td>Microsoft 365 / Google Workspace API</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px; font-size:12px; color:var(--neutral);">
+        Khung pháp lý hóa đơn điện tử toàn quốc từ 1/7/2026 theo Luật Quản lý thuế mới + Nghị định 254/2026. Kết nối ngân hàng khả thi nhưng chưa đồng nhất — dùng CSV cho demo hackathon, không dùng Open Banking thật.
+      </div>
+    </section>
+
+    <!-- 10 — BỐI CẢNH PHÁP LÝ -->
+    <section>
+      <div class="section-label">10 — Bối Cảnh Pháp Lý</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px;">
+          <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--neutral); margin-bottom:8px;">Bảo Vệ Dữ Liệu Cá Nhân</div>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:700; letter-spacing:-0.02em; margin-bottom:8px;">Luật số 91/2025/QH15</div>
+          <div style="font-size:13px; color:var(--text-secondary);">Có hiệu lực từ <strong>1/1/2026</strong>. Nghị định 356/2025/NĐ-CP. Hồ sơ AR chứa dữ liệu cá nhân (tên liên hệ, điện thoại, email, tài khoản ngân hàng, chữ ký). Hệ thống production cần tối thiểu hóa dữ liệu, phân quyền, mã hóa, chính sách lưu trữ và cơ chế quyền chủ thể dữ liệu.</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px;">
+          <div style="font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--neutral); margin-bottom:8px;">Bắt Buộc Hóa Đơn Điện Tử</div>
+          <div style="font-family:var(--font-display); font-size:20px; font-weight:700; letter-spacing:-0.02em; margin-bottom:8px;">Nghị định 254/2026</div>
+          <div style="font-size:13px; color:var(--text-secondary);">Hệ thống hóa đơn điện tử toàn quốc vận hành đầy đủ từ <strong>1/7/2026</strong>. Mọi hóa đơn B2B là dữ liệu số có cấu trúc (XML). Cho phép phân tích hóa đơn xác định mà không cần OCR — lợi thế kỹ thuật quan trọng cho hệ thống nhập dữ liệu PayTrace.</div>
+        </div>
+      </div>
+      <div style="margin-top:16px; padding:14px 20px; background:#FFFBEB; border:1px solid #F59E0B33; border-radius:8px; font-size:13px; color:#92400E;">
+        <strong>Cách tiếp cận an toàn cho hackathon:</strong> Chỉ dùng dữ liệu tổng hợp/ẩn danh. Quy trình chỉ đọc. Không tự gửi yêu cầu thanh toán. Không tự đưa ra quyết định tín dụng. Cần rà soát pháp lý riêng nếu chuyển dữ liệu sang dịch vụ AI/cloud nước ngoài.
+      </div>
+    </section>
+
+    <!-- FOOTNOTE -->
+    <div class="footnote">
+      <strong>Nguồn dữ liệu:</strong>
+      Atradius Payment Practices Barometer Vietnam 2025 và 2026 · FiinGroup Báo cáo DSO ngành Việt Nam 2025 · IFC Supply Chain Finance Programme Vietnam ·
+      Cục Thống kê Việt Nam (khảo sát doanh nghiệp xây dựng) · Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 &amp; Nghị định 356/2025/NĐ-CP ·
+      Luật Quản lý thuế mới &amp; Nghị định 254/2026 (hóa đơn điện tử) · Tài liệu sản phẩm công khai của MISA, Bizzi, Innomation, BRAVO, Validus, ASYX.
+      <br /><br />
+      <strong>Tuyên bố miễn trừ trách nhiệm:</strong> Các con số về giá, ARR, mục tiêu giảm DSO và vốn lưu động là mô hình minh họa hoặc ngưỡng pilot — không phải dự báo thị trường hoặc cam kết hiệu suất.
+      Bảng thống kê này hỗ trợ hồ sơ tham dự RMIT Hack-A-Venture 2026 và AI4Biz/KTC của Svaro PayTrace (vertical Việt Nam).
+    </div>
+
+  </div>
+</main>
+
+</body>
+</html>
